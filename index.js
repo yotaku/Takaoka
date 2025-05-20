@@ -68,10 +68,21 @@ client.once('ready', async () => {
 // スラッシュコマンド処理
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
+
   if (interaction.commandName === 'setup') {
-    forwardingMap.set(interaction.guildId, interaction.channel.id);
-    saveForwardingMap();
-    await interaction.reply('✅ このチャンネルを転送先に設定しました（永続化済）');
+    try {
+      // すぐに応答する
+      await interaction.deferReply({ ephemeral: true });
+
+      // 処理（チャンネル保存など）
+      await saveChannelToDatabase(interaction.channelId); // 仮の関数
+
+      // 後から応答内容を編集して返す
+      await interaction.editReply('✅ このチャンネルを転送先に設定しました（永続化済）');
+    } catch (error) {
+      console.error(error);
+      await interaction.editReply('❌ エラーが発生しました');
+    }
   }
 });
 
